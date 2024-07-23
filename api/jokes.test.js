@@ -46,8 +46,18 @@ describe("jokes model functions", () => {
     describe("[DELETE] / - deleting joke", () => {
         it("removes joke from database", async () => {
             const [joke_id] = await db("jokes").insert(joke1)
+            let joke = await db("jokes").where({joke_id}).first()
+            expect(joke).toBeTruthy()
+            await request(server).delete("/jokes/" + joke_id) //creates a simulation endpoint
+            joke = await db("jokes").where({ joke_id }).first()
+            expect(joke).toBeFalsy()
+        })
+        it("responds with the deleted joke", async () => {
+            await db("jokes").insert(joke1)
+            let joke = await request(server).delete("/jokes/1")
+            expect(joke.body).toMatchObject(joke1)
         })
     
 })
 
-})
+}) 
